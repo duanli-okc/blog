@@ -28,3 +28,24 @@ npm install corss-env  --save-dev
   }
 }
 ```
+## Promise封装读取文件
+```
+const  fs=require('fs');
+function read(url){
+  const promise= new Promise(function(resolve,reject){
+      fs.readFile(url,function(err,data){
+        if(err){
+          reject(err);
+        }else{
+          resolve(data);
+        }
+      });
+  });
+  return promise;
+}
+read('1.txt').then(function(data){
+   console.log(data);
+   // return read();
+}).then().then().then().then();
+// 调用then的时候，如果后面需要继续then，就要返回一个promise对象
+```
