@@ -1,25 +1,30 @@
 // 存在blog路由相关内容  
+const {SuccessModle,ErrorModle}  = require('../modle/resModle');
+const { getList,getDetail} =require('../controller/getBlog');
 function handleBlogRouter(req,res){
     const method = req.method;
    // 请求博客列表
    if(method=='GET' && req.path=='/api/blog/list'){
-       // 向数据库获取博客信息  sql
-       return {
-           id:'1',
-           title:'标题1',
-           content:'内容',
-           time:'2353425345'
-       }
+       // 向数据库获取博客信息  sql  id 
+      let {author,keyword}=req.query;
+      let dataList=getList(author,keyword);
+      if(dataList){
+        return  new SuccessModle(dataList,'获取博客列表成功');
+      }else{
+        return new ErrorModle('获取失败');
+      }
    } 
    // 获取博客详情
    if(method=='GET' && req.path=='/api/blog/detail'){
      // 向数据库获取博客信息  sql
-    return {
-        id:'1',
-        title:'标题1',
-        content:'详情内容XXXXXXXXXXXXX',
-        time:'2353425345'
-    }
+     let {id}= req.query;
+     let blogDetail=getDetail(id);
+     if(blogDetail){
+       return new SuccessModle(blogDetail,'获取博客信息成功');
+     }else{
+      return  new ErrorModle('获取失败');
+     }
+    
    }
    
    // 新增一篇博客
@@ -49,6 +54,11 @@ function handleBlogRouter(req,res){
 
 }
 
-
-
 module.exports=handleBlogRouter
+
+
+
+
+
+
+
