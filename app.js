@@ -45,9 +45,14 @@ function handleServer (req,res){
          // 处理博客请求
          const blogData=handleBlogRouter(req,res);
          if(blogData){
-            res.end(JSON.stringify(blogData));
+            blogData.then(function(data){
+               if(data){
+                  res.end(JSON.stringify(data));
+               }
+            });
             return;
          }
+         
          // 处理用户（登陆，注册）
          const userDate=handleUserRouter(req,res);
          if(userDate){

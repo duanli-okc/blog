@@ -8,15 +8,19 @@ function handleBlogRouter(req,res){
        // 向数据库获取博客信息  sql  id 
       let {author,keyword}=req.query;
       let dataList=getList(author,keyword);
-      if(dataList){
-        return  new SuccessModle(dataList,'获取博客列表成功');
-      }else{
-        return new ErrorModle('获取失败');
-      }
+     return  dataList.then(function(data){
+        if(data.length !=0){
+          return  new SuccessModle(data,'获取博客列表成功');
+        }else{
+          return new ErrorModle('获取失败');
+        }
+      });
+      
    } 
    // 获取博客详情
    if(method=='GET' && req.path=='/api/blog/detail'){
      // 向数据库获取博客信息  sql
+     // select * from bolg where id=X;
      let {id}= req.query;
      let blogDetail=getDetail(id);
      if(blogDetail){
