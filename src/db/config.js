@@ -4,7 +4,7 @@ if(process.env.NODE_ENV=='dev'){
         host     : 'localhost',
         user     : 'root',
         password : '123456789',
-        database : 'blog1',
+        database : 'blog',
         port:'3306'
       }
 }

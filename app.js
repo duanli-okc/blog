@@ -37,8 +37,33 @@ function handleServer (req,res){
    const method=req.method;
    req.path= req.url.split('?')[0];  // /api/blog/list
    // get数据
-   req.query=querystring.parse( req.url.split('?')[1] );  // { keyword:XXX,id:1}
+   req.query=querystring.parse( req.url.split('?')[1] );
+
+   // cookie解析 
+   req.cookie={};   
+   let cookieStr= req.headers.cookie || ''  // username=duanli; duanli=111 
+   let arr1=cookieStr.split('; '); // [username=duanli, duanli=111]
+       for(var i=0; i<arr1.length;i++){
+         var arr2=arr1[i].split('=');   // [username,duanli] 
+         req.cookie[arr2[0]]=arr2[1];
+       }
+   let  SESSION_DATA={};
+   // session解析
+   let needSetCookie=false;
+   let userId=req.cookie.userId;
+   if(userId){
+     if(!SESSION_DATA[userId]){
+        SESSION_DATA[userId]={};
+     } 
+   }else{
+      needSetCookie=true;
+      userId=`${Date.now()}_${Math.random()}`
+      SESSION_DATA[userId]={} // 初始化一个空对象，当登陆成功，向里面存用户信息
+   }
+   req.session=SESSION_DATA.userId;
+  
    
+
    getPostDate(req).then(function(postData){
          // post数据 
          req.body=postData; 
@@ -47,6 +72,7 @@ function handleServer (req,res){
          if(blogData){
             blogData.then(function(data){
                if(data){
+                  res.setHeader('Set-Cookie',`userId=${userId};path=/;httpOnly`);
                   res.end(JSON.stringify(data));
                }
             });
@@ -56,7 +82,12 @@ function handleServer (req,res){
          // 处理用户（登陆，注册）
          const userDate=handleUserRouter(req,res);
          if(userDate){
-            res.end( JSON.stringify(userDate) );
+            userDate.then(function(data){
+               if(data){
+                  res.setHeader('Set-Cookie',`userId=${userId};path=/;httpOnly`);
+                  res.end( JSON.stringify(data));
+               }
+            });
             return;
          }
          // 不存在的接口

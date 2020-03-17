@@ -13,7 +13,8 @@ function query_sql(sql){
            if(err){
                reject(err);
            }else{
-             resolve(result);  
+             resolve(result); 
+          
            }
         });
    });
