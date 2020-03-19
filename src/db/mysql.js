@@ -1,5 +1,5 @@
 // 开发的是 线上环境  开发环境
-const MySQL_CONFIG=require('./config');
+const {MySQL_CONFIG}=require('./config');
 const mysql=require('mysql');
 
 var connection = mysql.createConnection(MySQL_CONFIG);
@@ -14,7 +14,6 @@ function query_sql(sql){
                reject(err);
            }else{
              resolve(result); 
-          
            }
         });
    });

@@ -1,4 +1,5 @@
 let { login} =require('../controller/user');
+let {get,set}=require('../db/redis');
 let {SuccessModle,ErrorModle }=require('../modle/resModle');
 // 处理用户相关的路由
 function handleUserRouter(req,res){
@@ -13,12 +14,14 @@ function handleUserRouter(req,res){
           // 在客户端设置cookie
           req.session.username=result.username;
           req.session.realname=result.realname;
+          set(req.sessionId,req.session);
           return new SuccessModle('登陆成功');
         }else{
           return new ErrorModle('登陆失败');
         }
      });
    } 
+   
    // 登陆测试
    if(method=="GET" && req.path=='/api/user/login-test'){
      console.log(req.session);

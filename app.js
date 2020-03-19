@@ -2,6 +2,7 @@
 const handleBlogRouter=require('./src/router/blog');
 const handleUserRouter=require('./src/router/user');
 const querystring= require('querystring');
+const {set,get }=require('./src/db/redis');
 
 // 封装promise 获取 post提交的数据
 function getPostDate(req){
@@ -47,24 +48,43 @@ function handleServer (req,res){
          var arr2=arr1[i].split('=');   // [username,duanli] 
          req.cookie[arr2[0]]=arr2[1];
        }
-   let  SESSION_DATA={};
+
+  // let  SESSION_DATA={};   一个用户登陆  存入到内存   mysql 硬盘  
    // session解析
+   // let needSetCookie=false;
+   // let userId=req.cookie.userId;
+   // if(userId){
+   //   if(!SESSION_DATA[userId]){
+   //      SESSION_DATA[userId]={};
+   //   } 
+   // }else{
+   //    needSetCookie=true;
+   //    userId=`${Date.now()}_${Math.random()}`
+   //    SESSION_DATA[userId]={} // 初始化一个空对象，当登陆成功，向里面存用户信息
+   // }
+   // req.session=SESSION_DATA.userId;
+   
+   // redis 解析session
    let needSetCookie=false;
    let userId=req.cookie.userId;
-   if(userId){
-     if(!SESSION_DATA[userId]){
-        SESSION_DATA[userId]={};
-     } 
-   }else{
+   if(!userId){
       needSetCookie=true;
-      userId=`${Date.now()}_${Math.random()}`
-      SESSION_DATA[userId]={} // 初始化一个空对象，当登陆成功，向里面存用户信息
+      userId=`${ Date.now() }_${ Math.random() }`
+      set(userId,{}); 
    }
-   req.session=SESSION_DATA.userId;
-  
-   
-
-   getPostDate(req).then(function(postData){
+   req.sessionId=userId;
+   get(req.sessionId).then(function(sessionData){
+      if(sessionData==null){
+         // 初始化 
+         set(req.sessionId,{});
+         req.session={} // 
+      }else{
+         req.session=JSON.parse(sessionData);  // req.session 用的
+         
+      }
+      
+      return getPostDate(req);
+   }).then(function(postData){
          // post数据 
          req.body=postData; 
          // 处理博客请求
@@ -72,8 +92,10 @@ function handleServer (req,res){
          if(blogData){
             blogData.then(function(data){
                if(data){
+                 if(needSetCookie){
                   res.setHeader('Set-Cookie',`userId=${userId};path=/;httpOnly`);
-                  res.end(JSON.stringify(data));
+                 }
+                 res.end(JSON.stringify(data));
                }
             });
             return;
@@ -83,8 +105,10 @@ function handleServer (req,res){
          const userDate=handleUserRouter(req,res);
          if(userDate){
             userDate.then(function(data){
-               if(data){
-                  res.setHeader('Set-Cookie',`userId=${userId};path=/;httpOnly`);
+               if(data){ 
+                  if(needSetCookie){
+                     res.setHeader('Set-Cookie',`userId=${userId};path=/;httpOnly`);
+                  }
                   res.end( JSON.stringify(data));
                }
             });

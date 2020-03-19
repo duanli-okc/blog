@@ -5,7 +5,6 @@
   "main": "./bin/server.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=dev  nodemon ./bin/server.js",
-    
     "pro": "cross-env NODE_ENV=product  nodemon ./bin/server.js"
   },
   "author": "duanli",
@@ -14,6 +13,7 @@
     "cross-env": "^7.0.2"
   },
   "dependencies": {
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "redis": "^3.0.2"
   }
 }

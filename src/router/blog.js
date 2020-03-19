@@ -1,6 +1,13 @@
 // 存在blog路由相关内容  
 const {SuccessModle,ErrorModle}  = require('../modle/resModle');
 const { getList,getDetail,addBolg,updateBlog,delBlog} =require('../controller/getBlog');
+
+function loginCheck(req){
+  if(!req.session.username){
+    return Promise.resolve(new ErrorModle('用户未登陆')); 
+   } 
+}
+
 function handleBlogRouter(req,res){
     const method = req.method;
    // 请求博客列表
@@ -32,10 +39,13 @@ function handleBlogRouter(req,res){
             }
          });  
    }
-   
  // 新增一篇博客
-   if(method=='POST' && req.path=='/api/blog/new'){
-      
+   if(method=='GET' && req.path=='/api/blog/new'){
+     
+     let loginCheckResult=loginCheck(req);
+     if(loginCheckResult){  // 未登陆
+         return loginCheck(req);
+     }
      let  addBlogData=addBolg(req);
      
      return  addBlogData.then(function(addData){
@@ -52,6 +62,10 @@ function handleBlogRouter(req,res){
    // 更新一篇博客
    if(method=='POST' && req.path=='/api/blog/update'){
     
+    let loginCheckResult=loginCheck(req);
+     if(loginCheckResult){  // 未登陆
+         return loginCheck(req);
+     }
     let updataBlogData=updateBlog(req.body);
     return  updataBlogData.then(function(result){
             if(result){
@@ -64,8 +78,12 @@ function handleBlogRouter(req,res){
 
    // 删除一篇博客
    if(method=='POST' && req.path=='/api/blog/del'){ 
+    let loginCheckResult=loginCheck(req);
+    if(loginCheckResult){  // 未登陆
+        return loginCheck(req);
+    }
     let id=req.body.id;
-    let author = 'zhangsan'// 假数据, 作者从服务获取
+    let author = req.session.username;// 假数据, 作者从服务获取
     let DelBlogData=delBlog(id,author);
     return DelBlogData.then(function(result){
       if(result){

@@ -2,7 +2,7 @@
 const query_sql=require('../db/mysql');
 function getList(author,keyword){
 
-   let sql= `select * from list where 2=2 `;
+   let sql= `select * from blogs where 2=2 `;
    if(author){
        sql+=`and username=${author} `;
    }
@@ -19,10 +19,10 @@ function getDetail(id){
 }
 // 新增一条博客  返回值 insertId
 function  addBolg (req){
-    let title=req.body.title;
-    let content = req.body.content;
+    let title=req.query.title;
+    let content = req.query.content;
         
-    let author='zhanshan'; // 这是是假数据，后期替换, 作者是存到服务端
+    let author=req.session.username; // 这是是假数据，后期替换, 作者是存到服务端
     let createTime=Date.now(); // 时间戳
     let sql= `insert into blogs (title,content,createTime,author) values ('${title}','${content}',${createTime},'${author}')`
     return query_sql(sql);
